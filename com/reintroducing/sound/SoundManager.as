@@ -550,6 +550,41 @@ package com.reintroducing.sound {
 		}
 		
 		/**
+		 * Sets the pan of the specified sound.
+		 *
+		 * @param $name The string identifier of the sound
+		 * @param $pan The pan, between -1 and 1, to set the sound to
+		 *
+		 * @return void
+		 */
+		public function setSoundPan($name:String, $pan:Number):void {
+			if (_soundsDict[$name] == null){
+				//silently fail
+				trace(new Error("The string identifier [" + $name + "] it's not added to SoundManager dictionary").getStackTrace());
+				return;
+			}
+			
+			(_soundsDict[$name] as SoundItem).setPan($pan);
+		}
+		
+		/**
+		 * Gets the pan of the specified sound.
+		 *
+		 * @param $name The string identifier of the sound
+		 *
+		 * @return Number The current pan of the sound
+		 */
+		public function getSoundPan($name:String):Number {
+			if (_soundsDict[$name] == null){
+				//silently fail
+				trace(new Error("The string identifier [" + $name + "] it's not added to SoundManager dictionary").getStackTrace());
+				return 0;
+			}
+			
+			return (_soundsDict[$name] as SoundItem).channel.soundTransform.pan;
+		}
+		
+		/**
 		 * Gets the position of the specified sound.
 		 *
 		 * @param $name The string identifier of the sound
@@ -710,6 +745,6 @@ package com.reintroducing.sound {
 			return getQualifiedClassName(this);
 		}
 	
-//- END CLASS ---------------------------------------------------------------------------------------------
+		//- END CLASS ---------------------------------------------------------------------------------------------
 	}
 }
