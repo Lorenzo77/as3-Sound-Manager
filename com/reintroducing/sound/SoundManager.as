@@ -315,8 +315,12 @@ package com.reintroducing.sound {
 				return;
 			}
 			
+            // pour eviter de superposer les sons
+            if( si.channel ){
+                si.channel.stop();
+            }
 			// bypass the SoundItem class, and just trigger the playback of the sound itself.
-			si.sound.play($startTime, 0, new SoundTransform($volume));
+			si.channel = si.sound.play($startTime, 0, new SoundTransform($volume, si.pan));
 		}
 		
 		/**
@@ -581,7 +585,7 @@ package com.reintroducing.sound {
 				return 0;
 			}
 			
-			return (_soundsDict[$name] as SoundItem).channel.soundTransform.pan;
+			return (_soundsDict[$name] as SoundItem).pan;
 		}
 		
 		/**
@@ -745,6 +749,6 @@ package com.reintroducing.sound {
 			return getQualifiedClassName(this);
 		}
 	
-		//- END CLASS ---------------------------------------------------------------------------------------------
+        //- END CLASS ---------------------------------------------------------------------------------------------
 	}
 }
