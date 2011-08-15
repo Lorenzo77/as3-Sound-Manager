@@ -101,7 +101,17 @@ package com.reintroducing.sound
 		
 		}
 		
+		override public function setSoundPan($name:String, $pan:Number):void
+		{
+		
+		}
+		
 		override public function getSoundVolume($name:String):Number
+		{
+			return 0;
+		}
+		
+		override public function getSoundPan($name:String):void
 		{
 			return 0;
 		}
