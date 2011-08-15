@@ -1,237 +1,128 @@
 package com.reintroducing.sound {
-	import com.greensock.TweenLite;
-	import com.greensock.plugins.TweenPlugin;
-	import com.greensock.plugins.VolumePlugin;
-	import com.reintroducing.events.SoundManagerEvent;
-	
-	import flash.events.Event;
-	import flash.events.EventDispatcher;
 	import flash.media.Sound;
-	import flash.media.SoundChannel;
-	import flash.media.SoundTransform;
 	import flash.utils.getQualifiedClassName;
 	
 	
-	/**
-	 * @author Matt Przybylski [http://www.reintroducing.com]
-	 * @version 1.2
-	 */
-	public class SoundItem extends EventDispatcher {
-//- PRIVATE & PROTECTED VARIABLES -------------------------------------------------------------------------
+	public class NullSoundManager extends SoundManager {
 		
-		private var _fadeTween:TweenLite;
-		private var _volume:Number;
-		private var _pan:Number;
+		public function NullSoundManager(){
 		
-//- PUBLIC & INTERNAL VARIABLES ---------------------------------------------------------------------------
-		
-		public var name:String;
-		public var sound:Sound;
-		public var channel:SoundChannel;
-		public var position:int;
-		public var paused:Boolean;
-		public var savedVolume:Number;
-		public var startTime:Number;
-		public var loops:int;
-		public var pausedByAll:Boolean;
-		public var muted:Boolean;
-		
-//- CONSTRUCTOR	-------------------------------------------------------------------------------------------
-		
-		public function SoundItem():void {
-			super();
-			
-			TweenPlugin.activate([VolumePlugin]);
-			
-			init();
 		}
 		
-//- PRIVATE & PROTECTED METHODS ---------------------------------------------------------------------------
-		
-		/**
-		 *
-		 */
-		private function init():void {
-			channel = new SoundChannel();
+		override public static function getInstance():SoundManager {
+			return new NullSoundManager();
 		}
 		
-		/**
-		 *
-		 */
-		private function fadeComplete($stopOnComplete:Boolean):void {
-			if ($stopOnComplete)
-				stop();
-			
-			dispatchEvent(new SoundManagerEvent(SoundManagerEvent.SOUND_ITEM_FADE_COMPLETE, this));
+		override public function addSound($linkageID:String):Boolean {
+			return true;
 		}
 		
-//- PUBLIC & INTERNAL METHODS -----------------------------------------------------------------------------
+		override public function addMultiplesSounds($collection:Array):void {
 		
-		/**
-		 * Plays the sound item.
-		 *
-		 * @param $startTime The time, in seconds, to start the sound at (default: 0)
-		 * @param $loops The number of times to loop the sound (default: 0)
-		 * @param $volume The volume to play the sound at (default: 1)
-		 * @param $resumeTween If the sound volume is faded and while fading happens the sound is stopped, this will resume that fade tween (default: true)
-		 *
-		 * @return void
-		 */
-		public function play($startTime:Number = 0, $loops:int = 0, $volume:Number = 1, $resumeTween:Boolean = true):void {
-			if (!paused)
-				return;
-			
-			volume = $volume;
-			savedVolume = volume;
-			startTime = $startTime;
-			loops = $loops;
-			paused = ($startTime == 0) ? true : false;
-			
-			if (!paused)
-				position = startTime;
-			
-			channel = sound.play(position, loops, new SoundTransform(volume));
-			channel.addEventListener(Event.SOUND_COMPLETE, handleSoundComplete);
-			paused = false;
-			
-			if ($resumeTween && (fadeTween != null))
-				fadeTween.resume();
 		}
 		
-		/**
-		 * Pauses the sound item.
-		 *
-		 * @param $pauseTween If a fade tween is happening at the moment the sound is paused, the tween will be paused as well (default: true)
-		 *
-		 * @return void
-		 */
-		public function pause($pauseTween:Boolean = true):void {
-			paused = true;
-			position = channel.position;
-			channel.stop();
-			channel.removeEventListener(Event.SOUND_COMPLETE, handleSoundComplete);
-			
-			if ($pauseTween && (fadeTween != null))
-				fadeTween.pause();
+		override public function addLibrarySound($linkageID:*, $name:String):Boolean {
+			return true;
 		}
 		
-		/**
-		 * Stops the sound item.
-		 *
-		 * @return void
-		 */
-		public function stop():void {
-			paused = true;
-			channel.stop();
-			channel.removeEventListener(Event.SOUND_COMPLETE, handleSoundComplete);
-			position = channel.position;
-			fadeTween = null;
+		override public function addExternalSound($path:String, $name:String, $buffer:Number = 1000, $checkPolicyFile:Boolean = false):Boolean {
+			return true;
 		}
 		
-		/**
-		 * Fades the sound item.
-		 *
-		 * @param $volume The volume to fade to (default: 0)
-		 * @param $fadeLength The time, in seconds, to fade the sound (default: 1)
-		 * @param $stopOnComplete Stops the sound once the fade is completed (default: false)
-		 *
-		 * @return void
-		 */
-		public function fade($volume:Number = 0, $fadeLength:Number = 1, $stopOnComplete:Boolean = false):void {
-			fadeTween = TweenLite.to(channel, $fadeLength, {volume: $volume, onComplete: fadeComplete, onCompleteParams: [$stopOnComplete]});
+		override public function addPreloadedSound($sound:Sound, $name:String):Boolean {
+			return true;
 		}
 		
-		/**
-		 * Sets the volume of the sound item.
-		 *
-		 * @param $volume The volume, from 0 to 1, to set
-		 *
-		 * @return void
-		 */
-		public function setVolume($volume:Number):void {
-			var curTransform:SoundTransform = channel.soundTransform;
-			curTransform.volume = $volume;
-			channel.soundTransform = curTransform;
-			
-			_volume = $volume;
+		override public function removeSound($name:String):void {
+		
 		}
 		
-		/**
-		 * Sets the pan of the sound item.
-		 *
-		 * @param $pan The pan, from -1 to 1, to set
-		 *
-		 * @return void
-		 */
-		public function setPan($pan:Number):void {
-			var curTransform:SoundTransform = channel.soundTransform;
-			curTransform.pan = $pan;
-			channel.soundTransform = curTransform;
-			
-			_pan = $pan;
+		override public function removeAllSounds():void {
+		
 		}
 		
-		/**
-		 * Clears the sound item for garbage collection.
-		 *
-		 * @return void
-		 */
-		public function destroy():void {
-			channel.removeEventListener(Event.SOUND_COMPLETE, handleSoundComplete);
-			channel = null;
-			fadeTween = null;
+		override public function playSound($name:String, $volume:Number = 1, $startTime:Number = 0, $loops:int = 0, $resumeTween:Boolean = true):void {
+		
 		}
 		
-//- EVENT HANDLERS ----------------------------------------------------------------------------------------
+		override public function pauseSound($name:String, $pauseTween:Boolean = true):void {
 		
-		/**
-		 *
-		 */
-		private function handleSoundComplete($evt:Event):void {
-			stop();
-			
-			dispatchEvent(new SoundManagerEvent(SoundManagerEvent.SOUND_ITEM_PLAY_COMPLETE, this));
 		}
 		
-//- GETTERS & SETTERS -------------------------------------------------------------------------------------
+		override public function stopSound($name:String):void {
 		
-		/**
-		 *
-		 */
-		public function get volume():Number {
-			return channel.soundTransform.volume;
 		}
 		
-		/**
-		 *
-		 */
-		public function set volume($val:Number):void {
-			setVolume($val);
+		override public function playAllSounds($resumeTweens:Boolean = true, $useCurrentlyPlayingOnly:Boolean = false):void {
+		
 		}
 		
-		/**
-		 *
-		 */
-		public function get fadeTween():TweenLite {
-			return _fadeTween;
+		override public function pauseAllSounds($pauseTweens:Boolean = true, $useCurrentlyPlayingOnly:Boolean = true):void {
+		
 		}
 		
-		/**
-		 *
-		 */
-		public function set fadeTween($val:TweenLite):void {
-			if ($val == null)
-				TweenLite.killTweensOf(this);
-			
-			_fadeTween = $val;
+		override public function stopAllSounds($useCurrentlyPlayingOnly:Boolean = true):void {
+		
 		}
 		
-//- HELPERS -----------------------------------------------------------------------------------------------
+		override public function fadeSound($name:String, $targVolume:Number = 0, $fadeLength:Number = 1, $stopOnComplete:Boolean = false):void {
 		
-		override public function toString():String {
+		}
+		
+		override public function muteAllSounds():void {
+		
+		}
+		
+		override public function unmuteAllSounds():void {
+		
+		}
+		
+		override public function setSoundVolume($name:String, $volume:Number):void {
+		
+		}
+		
+		override public function setSoundPan($name:String, $pan:Number):void {
+		
+		}
+		
+		override public function getSoundVolume($name:String):Number {
+			return 0;
+		}
+		
+		override public function getSoundPan($name:String):void {
+			return 0;
+		}
+		
+		override public function getSoundPosition($name:String):Number {
+			return 0;
+		}
+		
+		override public function getSoundDuration($name:String):Number {
+			return 0;
+		}
+		
+		override public function getSoundItem($name:String):SoundItem {
+			return new SoundItem();
+		}
+		
+		override public function isSoundPaused($name:String):Boolean {
+			return false;
+		}
+		
+		override public function isSoundPausedByAll($name:String):Boolean {
+			return false;
+		}
+		
+		override public function get sounds():Array {
+			return new Array();
+		}
+		
+		override public function get areAllMuted():Boolean {
+			return false;
+		}
+		
+		override override public function toString():String {
 			return getQualifiedClassName(this);
 		}
-	
-//- END CLASS ---------------------------------------------------------------------------------------------
 	}
 }
