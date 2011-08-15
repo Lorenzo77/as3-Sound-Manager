@@ -21,16 +21,32 @@ package com.reintroducing.sound
 //- PRIVATE & PROTECTED VARIABLES -------------------------------------------------------------------------
 
 		private var _fadeTween:TweenLite;
-		private var _volume:Number;		//- PUBLIC & INTERNAL VARIABLES ---------------------------------------------------------------------------				public var name:String;
-		public var sound:Sound;		public var channel:SoundChannel;		public var position:int;		public var paused:Boolean;		public var savedVolume:Number;		public var startTime:Number;		public var loops:int;		public var pausedByAll:Boolean;		public var muted:Boolean;
+		private var _volume:Number;
+		private var _pan:Number;
+		
+//- PUBLIC & INTERNAL VARIABLES ---------------------------------------------------------------------------
+		
+		public var name:String;
+		public var sound:Sound;
+		public var channel:SoundChannel;
+		public var position:int;
+		public var paused:Boolean;
+		public var savedVolume:Number;
+		public var startTime:Number;
+		public var loops:int;
+		public var pausedByAll:Boolean;
+		public var muted:Boolean;
 		
 //- CONSTRUCTOR	-------------------------------------------------------------------------------------------
 	
-		public function SoundItem():void		{			super();
+		public function SoundItem():void
+		{
+			super();
 			
 			TweenPlugin.activate([VolumePlugin]);
 			
-			init();		}
+			init();
+		}
 		
 //- PRIVATE & PROTECTED METHODS ---------------------------------------------------------------------------
 		
@@ -64,7 +80,8 @@ package com.reintroducing.sound
 		 * 
 		 * @return void
 		 */
-		public function play($startTime:Number = 0, $loops:int = 0, $volume:Number = 1, $resumeTween:Boolean = true):void		{
+		public function play($startTime:Number = 0, $loops:int = 0, $volume:Number = 1, $resumeTween:Boolean = true):void
+		{
 			if (!paused) return;
 			
 			volume = $volume;
@@ -79,7 +96,8 @@ package com.reintroducing.sound
 			channel.addEventListener(Event.SOUND_COMPLETE, handleSoundComplete);
 			paused = false;
 			
-			if ($resumeTween && (fadeTween != null)) fadeTween.resume();		}
+			if ($resumeTween && (fadeTween != null)) fadeTween.resume();
+		}
 		
 		/**
 		 * Pauses the sound item.
@@ -143,6 +161,22 @@ package com.reintroducing.sound
 		}
 		
 		/**
+		 * Sets the pan of the sound item.
+		 * 
+		 * @param $pan The pan, from -1 to 1, to set
+		 * 
+		 * @return void
+		 */
+		public function setPan($pan:Number):void
+		{
+			var curTransform:SoundTransform = channel.soundTransform;
+			curTransform.pan = $pan;
+			channel.soundTransform = curTransform;
+			
+			_pan = $pan;
+		}
+		
+		/**
 		 * Clears the sound item for garbage collection.
 		 * 
 		 * @return void
@@ -184,7 +218,23 @@ package com.reintroducing.sound
 			setVolume($val);
 		}
 		
-		/**		 *		 */		public function get fadeTween():TweenLite		{		    return _fadeTween;		}				/**		 *		 */		public function set fadeTween($val:TweenLite):void		{			if ($val == null) TweenLite.killTweensOf(this);						_fadeTween = $val;		}
+		/**
+		 *
+		 */
+		public function get fadeTween():TweenLite
+		{
+		    return _fadeTween;
+		}
+		
+		/**
+		 *
+		 */
+		public function set fadeTween($val:TweenLite):void
+		{
+			if ($val == null) TweenLite.killTweensOf(this);
+			
+			_fadeTween = $val;
+		}
 	
 //- HELPERS -----------------------------------------------------------------------------------------------
 	
